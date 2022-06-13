@@ -21,6 +21,15 @@ contract BuyMeACoffee {
         priceFeed = AggregatorV3Interface(_priceFeed);
     }
 
+    receive() external payable {
+        fund();
+    }
+    
+    fallback() external payable {
+        fund();
+    }
+
+
     function fund() public payable {
         require(msg.value.getConversionRate(priceFeed) >= MINIMUM_USD, "You need to spend more ETH!");
         // require(PriceConverter.getConversionRate(msg.value) >= MINIMUM_USD, "You need to spend more ETH!");
@@ -60,14 +69,6 @@ contract BuyMeACoffee {
     //   yes   no
     //  /        \
     //receive()  fallback()
-
-    fallback() external payable {
-        fund();
-    }
-
-    receive() external payable {
-        fund();
-    }
 
 }
 
