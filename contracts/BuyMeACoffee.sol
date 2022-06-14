@@ -4,7 +4,7 @@ pragma solidity ^0.8.8;
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import "./PriceConverter.sol";
 
-error NotOwner();
+error BuyMeACoffee__NotOwner();
 
 contract BuyMeACoffee {
     using PriceConverter for uint256;
@@ -39,7 +39,7 @@ contract BuyMeACoffee {
     
     modifier onlyOwner {
         // require(msg.sender == owner);
-        if (msg.sender != i_owner) revert NotOwner();
+        if (msg.sender != i_owner) revert BuyMeACoffee__NotOwner();
         _;
     }
     

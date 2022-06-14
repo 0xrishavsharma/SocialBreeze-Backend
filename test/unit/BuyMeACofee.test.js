@@ -53,17 +53,58 @@ describe("BuyMeACoffee", () => {
 
             // Act
             const withdrawingBalance = await buyMeACoffee.withdraw();
-            const waitingAfterWithdrawal = await withdrawingBalance.wait(1);
+            const withdrawalReceipt = await withdrawingBalance.wait(1);
+
+            const { gasUsed, effectiveGasPrice } = withdrawalReceipt;
+            const totalGasCost = gasUsed.mul(effectiveGasPrice);
 
             const endingBuyMeACoffeeBalance = await buyMeACoffee.provider.getBalance(buyMeACoffee.address);
-            const endingDeployerBalance = await buyMeACoffee.provider.getBalance(buyMeACoffee);
+            const endingDeployerBalance = await buyMeACoffee.provider.getBalance(deployer);
 
             // Assert
             // When we are reading balances from the blockchain the number is usually big so we'll use ".add" instead of using "+" 
-            assert.equal(startingBuyMeACoffeeBalance.add(startingDeployerBalance).toString(), endingDeployerBalance);
+            assert.equal(startingBuyMeACoffeeBalance.add(startingDeployerBalance).toString(), endingDeployerBalance.add(totalGasCost).toString());
             assert.equal(endingBuyMeACoffeeBalance, 0);
 
             // We don't have gas cost as of now. So, to find out the gas cost we'll 
+        })
+
+        it("Allows us to withdraw with multiple funders", async () =>{
+            const accounts = await ethers.getSigners();
+            for(i=1; i<6; i++){
+                const buyMeACoffeeConnectedContract = await buyMeACoffee.connect();
+                await buyMeACoffee.fund({value: fundValue});
+            }
+
+            // Arrange
+            const startingBuyMeACoffeeBalance = await buyMeACoffee.provider.getBalance(buyMeACoffee.address);
+            const startingDeployerBalance = await buyMeACoffee.provider.getBalance(deployer);
+
+            // Act
+            const withdrawingBalance = await buyMeACoffee.withdraw();
+            const withdrawalReceipt = await withdrawingBalance.wait(1);
+
+            const { gasUsed, effectiveGasPrice } = withdrawalReceipt;
+            const totalGasCost = gasUsed.mul(effectiveGasPrice);
+
+            const endingBuyMeACoffeeBalance = await buyMeACoffee.provider.getBalance(buyMeACoffee.address);
+            const endingDeployerBalance = await buyMeACoffee.provider.getBalance(deployer);
+
+            // Assert
+            assert.equal(startingBuyMeACoffeeBalance.add(startingDeployerBalance).toString(), endingDeployerBalance.add(totalGasCost).toString());
+            assert.equal(endingBuyMeACoffeeBalance, 0);
+            // Making sure that funders are reset properly
+            await expect(buyMeACoffee.funders(0)).to.be.reverted;
+            for(i=1; i<6; i++){
+                assert.equal(await buyMeACoffee.addressToAmountFunded(accounts[i].address), 0)
+            }
+        })
+
+        it("Only allows owner to withdraw", async ()=>{
+            const accounts = await ethers.getSigners();
+            const attacker = accounts[1];
+            const attackerConnectedContract = await buyMeACoffee.connect(attacker);
+            await expect(attackerConnectedContract.withdraw()).to.be.revertedWith("BuyMeACoffee__NotOwner()");
         })
         
 
