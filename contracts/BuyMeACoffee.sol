@@ -9,13 +9,13 @@ error BuyMeACoffee__NotOwner();
 
 contract BuyMeACoffee {
     using PriceConverter for uint256;
-    mapping(address => uint256) public s_addressToAmountFunded;
-    address[] public s_funders;
+    mapping(address => uint256) private s_addressToAmountFunded;
+    address[] private s_funders;
 
     // Could we make this constant?  /* hint: no! We should make it immutable! */
     address private immutable  i_owner;
     uint256 public constant MINIMUM_USD = 50 * 10 ** 18;
-    AggregatorV3Interface public s_priceFeed;
+    AggregatorV3Interface private s_priceFeed;
     
     constructor(address _priceFeed) {
         i_owner = msg.sender;
@@ -71,6 +71,23 @@ contract BuyMeACoffee {
         s_funders = new address[](0);
         (bool success, ) = i_owner.call{value: address(this).balance}("");
     }
+
+    function getOwner() view public returns(address){
+        return i_owner;
+    }
+
+    function getFunder(uint256 index) view public returns(address){
+        return s_funders[index];
+    }
+
+    function getAddressToAmountFunded(address funder) view public returns(uint256){
+        return s_addressToAmountFunded[funder];
+    }
+
+    function getPriceFeed() public view returns(AggregatorV3Interface){
+        return s_priceFeed;
+    }
+
     // Explainer from: https://solidity-by-example.org/fallback/
     // Ether is sent to contract
     //      is msg.data empty?

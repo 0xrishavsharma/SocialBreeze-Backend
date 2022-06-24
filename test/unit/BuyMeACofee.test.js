@@ -18,7 +18,7 @@ describe("BuyMeACoffee", () => {
     })
     describe("constructor", () => {
         it("sets the aggregator addresses correctly", async ()=>{
-            const response = await buyMeACoffee.s_priceFeed();
+            const response = await buyMeACoffee.getPriceFeed();
             assert.equal(response, mockV3Aggregator.address);
         })
     })
@@ -30,12 +30,12 @@ describe("BuyMeACoffee", () => {
         })
         it("Fails if the mapping isn't updated correctly", async () =>{
             await buyMeACoffee.fund({value: fundValue});
-            const response = await buyMeACoffee.s_addressToAmountFunded(deployer);
+            const response = await buyMeACoffee.getAddressToAmountFunded(deployer);
             assert.equal(response.toString(), fundValue.toString());
         })
         it("Adds funder to funders array", async () => {
             await buyMeACoffee.fund({value: fundValue});
-            const response = await buyMeACoffee.s_funders(0);
+            const response = await buyMeACoffee.getFunder(0);
             assert.equal(response, deployer);
         })
     })
@@ -94,9 +94,9 @@ describe("BuyMeACoffee", () => {
             assert.equal(startingBuyMeACoffeeBalance.add(startingDeployerBalance).toString(), endingDeployerBalance.add(totalGasCost).toString());
             assert.equal(endingBuyMeACoffeeBalance, 0);
             // Making sure that funders are reset properly
-            await expect(buyMeACoffee.s_funders(0)).to.be.reverted;
+            await expect(buyMeACoffee.getFunder(0)).to.be.reverted;
             for(i=1; i<6; i++){
-                assert.equal(await buyMeACoffee.s_addressToAmountFunded(accounts[i].address), 0)
+                assert.equal(await buyMeACoffee.getAddressToAmountFunded(accounts[i].address), 0)
             }
         })
 
@@ -155,9 +155,9 @@ describe("BuyMeACoffee", () => {
             assert.equal(startingBuyMeACoffeeBalance.add(startingDeployerBalance).toString(), endingDeployerBalance.add(totalGasCost).toString());
             assert.equal(endingBuyMeACoffeeBalance, 0);
             // Making sure that funders are reset properly
-            await expect(buyMeACoffee.s_funders(0)).to.be.reverted;
+            await expect(buyMeACoffee.getFunder(0)).to.be.reverted;
             for(i=1; i<6; i++){
-                assert.equal(await buyMeACoffee.s_addressToAmountFunded(accounts[i].address), 0)
+                assert.equal(await buyMeACoffee.getAddressToAmountFunded(accounts[i].address), 0)
             }
         })
         
