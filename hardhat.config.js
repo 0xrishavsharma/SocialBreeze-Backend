@@ -38,7 +38,7 @@ module.exports = {
     outputFile: "gas-report.txt",  // Will create a file “gas-report.txt” and create a chart representing the gas.
     noColors: true, // When we export the data to a file the colors get messed up so we are not coloring the output here.
     currency: "INR", //To get gas value in USD/INR or any other currency we need the API key of CoinMarketCap
-    // coinmarketcap: COINMARKETCAP_API_KEY, // Adding the CoinMarketCap API 
+    coinmarketcap: COINMARKETCAP_API_KEY, // Adding the CoinMarketCap API 
     token: "MATIC", // Will show the gas price in Matic token, you can change it to Eth or any other token.
   },
   etherscan: {
