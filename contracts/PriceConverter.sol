@@ -6,7 +6,11 @@ import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 // Why is this a library and not abstract?
 // Why not an interface?
 library PriceConverter {
-    function getPrice(AggregatorV3Interface priceFeed) internal view returns (uint256) {
+    function getPrice(AggregatorV3Interface priceFeed)
+        internal
+        view
+        returns (uint256)
+    {
         AggregatorV3Interface priceFeed = AggregatorV3Interface(priceFeed);
         (, int256 answer, , , ) = priceFeed.latestRoundData();
         // ETH/USD rate in 18 digit
@@ -14,11 +18,10 @@ library PriceConverter {
     }
 
     // 1000000000
-    function getConversionRate(uint256 ethAmount, AggregatorV3Interface priceFeed)
-        internal
-        view
-        returns (uint256)
-    { 
+    function getConversionRate(
+        uint256 ethAmount,
+        AggregatorV3Interface priceFeed
+    ) internal view returns (uint256) {
         uint256 ethPrice = getPrice(priceFeed);
         uint256 ethAmountInUsd = (ethPrice * ethAmount) / 10**18;
         // the actual ETH/USD conversation rate, after adjusting the extra 0s.

@@ -13,10 +13,10 @@ contract BuyMeACoffee {
     address[] private s_funders;
 
     // Could we make this constant?  /* hint: no! We should make it immutable! */
-    address private immutable  i_owner;
-    uint256 public constant MINIMUM_USD = 50 * 10 ** 18;
+    address private immutable i_owner;
+    uint256 public constant MINIMUM_USD = 50 * 10**18;
     AggregatorV3Interface private s_priceFeed;
-    
+
     constructor(address _priceFeed) {
         i_owner = msg.sender;
         s_priceFeed = AggregatorV3Interface(_priceFeed);
@@ -25,28 +25,33 @@ contract BuyMeACoffee {
     receive() external payable {
         fund();
     }
-    
+
     fallback() external payable {
         fund();
     }
 
-
     function fund() public payable {
-        require(msg.value.getConversionRate(s_priceFeed) >= MINIMUM_USD, "You need to spend more ETH!");
+        require(
+            msg.value.getConversionRate(s_priceFeed) >= MINIMUM_USD,
+            "You need to spend more ETH!"
+        );
         // require(PriceConverter.getConversionRate(msg.value) >= MINIMUM_USD, "You need to spend more ETH!");
         s_addressToAmountFunded[msg.sender] += msg.value;
         s_funders.push(msg.sender);
-        console.log("From inside the Fund function");
     }
-    
-    modifier onlyOwner {
+
+    modifier onlyOwner() {
         // require(msg.sender == owner);
         if (msg.sender != i_owner) revert BuyMeACoffee__NotOwner();
         _;
     }
-    
-    function withdraw() payable onlyOwner public {
-        for (uint256 funderIndex=0; funderIndex < s_funders.length; funderIndex++){
+
+    function withdraw() public payable onlyOwner {
+        for (
+            uint256 funderIndex = 0;
+            funderIndex < s_funders.length;
+            funderIndex++
+        ) {
             address funder = s_funders[funderIndex];
             s_addressToAmountFunded[funder] = 0;
         }
@@ -57,48 +62,57 @@ contract BuyMeACoffee {
         // bool sendSuccess = payable(msg.sender).send(address(this).balance);
         // require(sendSuccess, "Send failed");
         // call
-        (bool callSuccess, ) = payable(msg.sender).call{value: address(this).balance}("");
+        console.log("Before withdrawing funds");
+        (bool callSuccess, ) = payable(msg.sender).call{
+            value: address(this).balance
+        }("");
         require(callSuccess, "Call failed");
     }
 
-    function cheaperWithdraw() public payable onlyOwner{
+    function cheaperWithdraw() public payable onlyOwner {
         address[] memory funders = s_funders;
-        // We can't store mappings in memory 
-        for(uint256 funderIndex=0; funderIndex < funders.length; funderIndex++){
+        // We can't store mappings in memory
+        for (
+            uint256 funderIndex = 0;
+            funderIndex < funders.length;
+            funderIndex++
+        ) {
             address funder = funders[funderIndex];
             s_addressToAmountFunded[funder] = 0;
-        } 
+        }
         s_funders = new address[](0);
         (bool success, ) = i_owner.call{value: address(this).balance}("");
     }
 
-    function getOwner() view public returns(address){
+    function getOwner() public view returns (address) {
         return i_owner;
     }
 
-    function getFunder(uint256 index) view public returns(address){
+    function getFunder(uint256 index) public view returns (address) {
         return s_funders[index];
     }
 
-    function getAddressToAmountFunded(address funder) view public returns(uint256){
+    function getAddressToAmountFunded(address funder)
+        public
+        view
+        returns (uint256)
+    {
         return s_addressToAmountFunded[funder];
     }
 
-    function getPriceFeed() public view returns(AggregatorV3Interface){
+    function getPriceFeed() public view returns (AggregatorV3Interface) {
         return s_priceFeed;
     }
 
     // Explainer from: https://solidity-by-example.org/fallback/
     // Ether is sent to contract
     //      is msg.data empty?
-    //          /   \ 
+    //          /   \
     //         yes  no
     //         /     \
-    //    receive()?  fallback() 
-    //     /   \ 
+    //    receive()?  fallback()
+    //     /   \
     //   yes   no
     //  /        \
     //receive()  fallback()
-
 }
-

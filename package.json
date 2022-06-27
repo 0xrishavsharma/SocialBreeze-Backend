@@ -1,13 +1,10 @@
 {
-  "name": "fund-me-hh",
+  "name": "buy-me-a-coffee-hardhat",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "keywords": [],
-  "author": "",
+  "author": "rishavsharma",
   "license": "ISC",
   "devDependencies": {
     "@chainlink/contracts": "^0.4.1",
@@ -33,5 +30,14 @@
     "solhint": "^3.3.6",
     "solidity-coverage": "^0.7.16"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "scripts":{
+    "test": "yarn hardhat test",
+    "deploy": "yarn hardhat deploy",
+    "test:staging": "yarn hardhat test --network rinkeby",
+    "lint": "yarn solhint 'contracts/*.sol'",
+    "lint:fix": "yarn solhint 'contracts/*.sol' --fix",
+    "format": "yarn prettier --write .",
+    "coverage": "yarn hardhat coverage"
+  }
 }
